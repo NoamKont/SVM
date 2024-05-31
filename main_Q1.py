@@ -6,8 +6,9 @@ from sklearn.decomposition import PCA
 
 
 def plotSVM(X, y, w=None, support_vectors=None):
-    # pca = PCA(n_components=2)
-    # X = pca.fit_transform(X)
+    # if(X.shape[1] > 2):
+    #     pca = PCA(n_components=2)
+    #     X = pca.fit_transform(X)
 
     red = np.where(y < 0)
     blue = np.where(y > 0)
@@ -23,12 +24,11 @@ def plotSVM(X, y, w=None, support_vectors=None):
     plt.axis([x_min - 1, x_max + 1, y_min - 1, y_max + 1])  # set size of axis
     lx = np.linspace(x_min, x_max)
 
-    if w is not None:  # Create SVM visualization
+    if w is not None:  # Classifier visualization
         ly = [(-w[-1] - w[0] * p) / w[1] for p in
               lx]  # Seperator Y coordinates from the equation w_1*x + w_2*y + w_3 = 0
         ly1 = [(-w[-1] - w[0] * p - 1) / w[1] for p in lx]  # Margin Red line
         ly2 = [(-w[-1] - w[0] * p + 1) / w[1] for p in lx]  # Margin Blue line
-
         plt.plot(lx, ly, color='black')
         plt.plot(lx, ly1, "--", color='red')
         plt.plot(lx, ly2, "--", color='blue')
@@ -40,8 +40,6 @@ def plotSVM(X, y, w=None, support_vectors=None):
 
 def DualSVM(X, y,threshold = 0.1):
     N, n = X.shape
-    # ones_column = np.ones((X.shape[0], 1), dtype=X.dtype)  # adding a '1' column to represent the 'b' in the module.
-    # X = np.hstack((ones_column, X))
     X = np.c_[X, np.ones(N)]
     old_G = np.diag(y) @ X
     P = old_G@old_G.T
@@ -58,8 +56,6 @@ def DualSVM(X, y,threshold = 0.1):
 
 def QuadSVM(X, y):
     N, n = X.shape
-    # ones_column = np.ones((X.shape[0], 1), dtype=X.dtype)  # adding a '1' column to represent the 'b' in the module.
-    # X = np.hstack((ones_column, X))
     X = np.c_[X, np.ones(N)]
     P = 2 * np.eye(n + 1)
     q = np.zeros(n + 1)
