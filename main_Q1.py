@@ -5,11 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
 
-def plotSVM(X, y, w=None, support_vectors=None):
-    # if(X.shape[1] > 2):
-    #     pca = PCA(n_components=2)
-    #     X = pca.fit_transform(X)
-
+def plotSVM(X, y, w=None, support_vectors=None, title:str = None):
     red = np.where(y < 0)
     blue = np.where(y > 0)
 
@@ -35,7 +31,7 @@ def plotSVM(X, y, w=None, support_vectors=None):
 
     if support_vectors is not None:
         plt.scatter(X[support_vectors, 0], X[support_vectors, 1], s=100, facecolors='none', edgecolors='black')
-
+    plt.title(title)
     plt.show()
 
 def DualSVM(X, y,threshold = 0.1):
@@ -65,6 +61,7 @@ def QuadSVM(X, y):
     return w
 
 
+
 if __name__ == "__main__":
     with open("..\simple_classification.csv") as file:
         df = pd.read_csv(file)
@@ -75,8 +72,8 @@ if __name__ == "__main__":
 
     w = QuadSVM(X, y)
     print("Quadratic weights:", w)
-    plotSVM(X, y, w)
+    plotSVM(X, y, w, title = "Quadratic weights")
 
     w_d, support_vector = DualSVM(X, y)
     print("Dual weights:", w_d)
-    plotSVM(X, y, w_d, support_vector)
+    plotSVM(X, y, w_d, support_vector,"Dual Program")
