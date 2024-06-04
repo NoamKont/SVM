@@ -3,45 +3,18 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
 import itertools
-
-
-def plot_classifier_z_kernel(alpha, X, y, ker, arg, threshold=0.1):
-    x_min = np.amin(X[:, 0])
-    x_max = np.amax(X[:, 0])
-    y_min = np.amin(X[:, 1])
-    y_max = np.amax(X[:, 1])
-
-    red = np.where(y < 0)
-    blue = np.where(y > 0)
-    plt.plot(X[red, 0], X[red, 1], 'o', color='red')
-    plt.plot(X[blue, 0], X[blue, 1], 'o', color='blue')
-
-    xx = np.linspace(x_min, x_max)
-    yy = np.linspace(y_min, y_max)
-
-    xx, yy = np.meshgrid(xx, yy)
-    N = X.shape[0]
-    z = np.zeros(xx.shape)
-    for i, j in itertools.product(range(xx.shape[0]), range(xx.shape[1])):
-        z[i, j] = sum([y[k] * alpha[k] * ker(X[k, :], np.array([xx[i, j], yy[i, j]]), arg) for k in range(N)])
-
-    support_vectors = np.where((np.abs(alpha) >= threshold))
-    plt.scatter(X[support_vectors, 0], X[support_vectors, 1], s=100, facecolors='none', edgecolors='black')
-    plt.contour(xx, yy, z, levels=[-1, 0, 1], colors=['red', 'black', 'blue'], linestyles=['--', '-', '--'])
-    plt.show()
 
 
 def RBF_kernel(x, y, gamma: float = 1.0):
     return np.e ** (-gamma * np.linalg.norm(x - y))
 
 
-def polynomial_kernel(x, y, degree: int = 2.0):
+def polynomial_kernel(x, y, degree: int = 2):
     return (x @ y.T + 1) ** degree
 
 
-def svm_dual_kernel(X, y, ker, arg, threshold=0.1):
+def svm_dual_kernel(X, y, ker, arg):
     N = X.shape[0]
     P = np.empty((N, N))
     for i, j in itertools.product(range(N), range(N)):
@@ -83,6 +56,33 @@ def error_plot(error, title):
     plt.title(f"Error Rate of {title} Kernel")
     plt.grid(False)
     plt.show()
+
+
+def plot_classifier_z_kernel(alpha, X, y, ker, arg, threshold=0.1):
+    x_min = np.amin(X[:, 0])
+    x_max = np.amax(X[:, 0])
+    y_min = np.amin(X[:, 1])
+    y_max = np.amax(X[:, 1])
+
+    red = np.where(y < 0)
+    blue = np.where(y > 0)
+    plt.plot(X[red, 0], X[red, 1], 'o', color='red')
+    plt.plot(X[blue, 0], X[blue, 1], 'o', color='blue')
+
+    xx = np.linspace(x_min, x_max)
+    yy = np.linspace(y_min, y_max)
+
+    xx, yy = np.meshgrid(xx, yy)
+    N = X.shape[0]
+    z = np.zeros(xx.shape)
+    for i, j in itertools.product(range(xx.shape[0]), range(xx.shape[1])):
+        z[i, j] = sum([y[k] * alpha[k] * ker(X[k, :], np.array([xx[i, j], yy[i, j]]), arg) for k in range(N)])
+    threshold = np.mean(alpha)
+    support_vectors = np.where((np.abs(alpha) >= threshold))
+    plt.scatter(X[support_vectors, 0], X[support_vectors, 1], s=100, facecolors='none', edgecolors='black')
+    plt.contour(xx, yy, z, levels=[-1, 0, 1], colors=['red', 'black', 'blue'], linestyles=['--', '-', '--'])
+    plt.show()
+
 
 
 if __name__ == "__main__":

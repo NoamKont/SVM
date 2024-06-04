@@ -1,9 +1,6 @@
 import qpsolvers as qps
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
 import itertools
 
 
@@ -18,7 +15,6 @@ class SVM:
         self.support_vectors_ = None
         self.support_vectors_predict = None
         self.threshold = 0.0001
-        self.weights_ = None
 
     def kernel_poly(self, x, y):
         return (1 + x @ y.T) ** self.degree
@@ -36,11 +32,8 @@ class SVM:
             self.kernel = self.kernel_RBF
         elif kernel_name == 'sigmoid':
             self.kernel = self.kernel_sigmoid
-        elif kernel_name == 'linear':
-            self.kernel = self.kernel_linear
         else:
             raise ValueError('Unknown kernel type')
-
 
     def fit(self, X, y):
         N = X.shape[0]
@@ -55,6 +48,8 @@ class SVM:
         lb = np.zeros(N)
         ub = self.C * np.ones(N)
         self.alpha = qps.solve_qp(P, q, GG, h, lb=lb, ub=ub, solver='osqp')
+        #self.threshold = max(self.alpha)*0.9
+        self.threshold = np.mean(self.alpha)
         index_support_vectors = np.where((np.abs(self.alpha) >= self.threshold))
         self.support_vectors_ = X[index_support_vectors]
         self.support_vectors_predict = y[index_support_vectors]
@@ -62,7 +57,8 @@ class SVM:
     def decision_function(self, X_test):
         z = np.zeros(X_test.shape[0])
         for i in range(X_test.shape[0]):
-            z[i] = sum([self.alpha[k] * self.support_vectors_predict[k] * self.kernel(self.support_vectors_[k, :].T, X_test[i, :]) for k in range(len(self.support_vectors_))])
+            z[i] = sum([self.alpha[k] * self.support_vectors_predict[k] * self.kernel(self.support_vectors_[k, :].T, X_test[i, :]) for k in
+                        range(len(self.support_vectors_))])
         return z
 
     def predict(self, X):
@@ -88,9 +84,23 @@ class SVM:
         return X_train, X_test, y_train, y_test
 
     @staticmethod
-    def error_plot(error, title):
-        error_plot = np.array(error)
-        plt.plot(error_plot[:, 1], error_plot[:, 0], marker='o', linestyle='-')
-        plt.title(f"Error Rate of {title} Kernel")
-        plt.grid(False)
+    def error_heatmap_plot(error, title):
+        scores = np.array(error)[:, 0]
+        gammas = np.array(list(sorted(set(row[1] for row in error))))
+        C = np.array(list(sorted(set(row[2] for row in error))))
+        scores_matrix = scores.reshape(len(gammas), len(C))
+        plt.imshow(scores_matrix, cmap='viridis', interpolation='nearest')
+        plt.colorbar()
+        plt.xticks(np.arange(len(C)), labels=C)
+        plt.yticks(np.arange(len(gammas)), labels=gammas)
+        for i in range(len(gammas)):
+            for j in range(len(C)):
+                plt.text(j, i, f'{scores_matrix[i, j]:.2f}', weight='bold', ha='center', va='center', color='w')
+
+        plt.xlabel('C')
+        if title == "poly":
+            plt.ylabel('Degrees')
+        else:
+            plt.ylabel('Gamma')
+        plt.title('Heatmap of Errors')
         plt.show()

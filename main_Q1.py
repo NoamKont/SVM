@@ -2,10 +2,9 @@ import qpsolvers as qps
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
 
 
-def plotSVM(X, y, w=None, support_vectors=None, title:str = None):
+def plotSVM(X, y, w=None, support_vectors=None, title: str = None):
     red = np.where(y < 0)
     blue = np.where(y > 0)
 
@@ -21,8 +20,7 @@ def plotSVM(X, y, w=None, support_vectors=None, title:str = None):
     lx = np.linspace(x_min, x_max)
 
     if w is not None:  # Classifier visualization
-        ly = [(-w[-1] - w[0] * p) / w[1] for p in
-              lx]  # Seperator Y coordinates from the equation w_1*x + w_2*y + w_3 = 0
+        ly = [(-w[-1] - w[0] * p) / w[1] for p in lx]  # Seperator Y coordinates from the equation w_1*x + w_2*y + w_3 = 0
         ly1 = [(-w[-1] - w[0] * p - 1) / w[1] for p in lx]  # Margin Red line
         ly2 = [(-w[-1] - w[0] * p + 1) / w[1] for p in lx]  # Margin Blue line
         plt.plot(lx, ly, color='black')
@@ -34,11 +32,12 @@ def plotSVM(X, y, w=None, support_vectors=None, title:str = None):
     plt.title(title)
     plt.show()
 
-def DualSVM(X, y,threshold = 0.1):
+
+def DualSVM(X, y, threshold=0.1):
     N, n = X.shape
     X = np.c_[X, np.ones(N)]
     old_G = np.diag(y) @ X
-    P = old_G@old_G.T
+    P = old_G @ old_G.T
     q = -np.ones(N)
     G = -np.eye(N)
     h = np.zeros(N)
@@ -46,8 +45,7 @@ def DualSVM(X, y,threshold = 0.1):
     support_Index = np.where((np.abs(alpha) >= threshold))
 
     w = old_G.T @ alpha
-    return w , support_Index
-
+    return w, support_Index
 
 
 def QuadSVM(X, y):
@@ -61,7 +59,6 @@ def QuadSVM(X, y):
     return w
 
 
-
 if __name__ == "__main__":
     with open("..\simple_classification.csv") as file:
         df = pd.read_csv(file)
@@ -72,8 +69,8 @@ if __name__ == "__main__":
 
     w = QuadSVM(X, y)
     print("Quadratic weights:", w)
-    plotSVM(X, y, w, title = "Quadratic weights")
+    plotSVM(X, y, w, title="Quadratic weights")
 
     w_d, support_vector = DualSVM(X, y)
     print("Dual weights:", w_d)
-    plotSVM(X, y, w_d, support_vector,"Dual Program")
+    plotSVM(X, y, w_d, support_vector, "Dual Program")
