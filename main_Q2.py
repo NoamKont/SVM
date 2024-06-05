@@ -88,11 +88,12 @@ def plot_classifier_z_kernel(alpha, X, y, ker, arg, threshold=0.1):
 if __name__ == "__main__":
     with open("..\simple_nonlin_classification.csv") as file:
         df = pd.read_csv(file)
-    X = df.drop(columns=['y']).values
+    X = df.drop(columns=['y']).values  # Drop the "y" column from features
     y = df['y'].values
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False) # split the dataset train(80%) test(20%)
 
-    gamma_list = [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 10, 20, 30, 50]
+    gamma_list = [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 20, 30, 50]
+
     error_RBF = []
     best_gamma = 0
     best_accuracy = 1
@@ -127,4 +128,4 @@ if __name__ == "__main__":
     error_plot(error_poly, f"Poly")
 
     alpha = svm_dual_kernel(X_train, y_train, polynomial_kernel, best_degree)
-    plot_classifier_z_kernel(alpha, X_train, y_train, polynomial_kernel, best_degree, 4)
+    plot_classifier_z_kernel(alpha, X_train, y_train, polynomial_kernel, best_degree)

@@ -14,7 +14,7 @@ class SVM:
         self.alpha = None
         self.support_vectors_ = None
         self.support_vectors_predict = None
-        self.threshold = 0.0001
+        self.threshold = 0
 
     def kernel_poly(self, x, y):
         return (1 + x @ y.T) ** self.degree
@@ -22,16 +22,11 @@ class SVM:
     def kernel_RBF(self, x, y):
         return np.e ** (-self.gamma * np.linalg.norm(x - y))
 
-    def kernel_sigmoid(self, x, y):
-        return np.tanh(self.gamma * np.dot(x, y.T))
-
     def set_kernel(self, kernel_name):
         if kernel_name == 'poly':
             self.kernel = self.kernel_poly
         elif kernel_name == 'RBF':
             self.kernel = self.kernel_RBF
-        elif kernel_name == 'sigmoid':
-            self.kernel = self.kernel_sigmoid
         else:
             raise ValueError('Unknown kernel type')
 
@@ -48,8 +43,7 @@ class SVM:
         lb = np.zeros(N)
         ub = self.C * np.ones(N)
         self.alpha = qps.solve_qp(P, q, GG, h, lb=lb, ub=ub, solver='osqp')
-        #self.threshold = max(self.alpha)*0.9
-        self.threshold = np.mean(self.alpha)
+
         index_support_vectors = np.where((np.abs(self.alpha) >= self.threshold))
         self.support_vectors_ = X[index_support_vectors]
         self.support_vectors_predict = y[index_support_vectors]
